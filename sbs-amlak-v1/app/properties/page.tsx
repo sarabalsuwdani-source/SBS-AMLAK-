@@ -1,3 +1,110 @@
-import Shell from '@/components/Shell';
-const rows=[['عمارة الصفا','A01','عمارة','24','0','نشط'],['عمارة الصفا','A02','عمارة','24','0','نشط'],['المستودعات','WH','مستودعات','4','0','نشط'],['الستريب مول','SM01','ستريب مول','0','0','نشط']];
-export default function Properties(){return <Shell><div className="top"><div><h1>العقارات</h1><div className="sub">إدارة العماير والمستودعات والستريب مول</div></div><button className="btn">+ إضافة عقار</button></div><div className="card"><table className="table"><thead><tr><th>اسم العقار</th><th>الكود</th><th>النوع</th><th>الوحدات</th><th>المتأخرات</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>{rows.map(r=><tr key={r[1]}><td>{r[0]}</td><td className="gold">{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td><td>{r[4]} ر.س</td><td><span className="pill paid">{r[5]}</span></td><td><a className="btn secondary" href={`/properties/${r[1]}`}>التفاصيل</a></td></tr>)}</tbody></table></div><h2>إضافة عقار جديد</h2><div className="card form"><div className="field"><label>اسم العقار</label><input placeholder="مثال: عمارة الصفا" /></div><div className="field"><label>كود العقار</label><input placeholder="A01" /></div><div className="field"><label>نوع العقار</label><select><option>عمارة</option><option>مستودعات</option><option>ستريب مول</option></select></div><div className="field"><label>عدد الوحدات</label><input placeholder="24" /></div><div className="field"><label>الموقع</label><input placeholder="المدينة / الحي" /></div><div className="field"><label>الحالة</label><select><option>نشط</option><option>تحت الصيانة</option></select></div></div></Shell>}
+'use client'
+
+import Shell from '@/components/Shell'
+import { useState } from 'react'
+
+export default function Properties() {
+  const [buildings, setBuildings] = useState<any[]>([])
+  const [buildingName, setBuildingName] = useState('')
+  const [buildingColor, setBuildingColor] = useState('#d4af37')
+
+  const addBuilding = () => {
+    if (!buildingName) {
+      alert('اكتب اسم العمارة')
+      return
+    }
+
+    const newBuilding = {
+      id: Date.now(),
+      name: buildingName,
+      color: buildingColor,
+      units: []
+    }
+
+    setBuildings([...buildings, newBuilding])
+    setBuildingName('')
+    alert('تم إضافة العمارة بنجاح')
+  }
+
+  const deleteBuilding = (id:number) => {
+    setBuildings(buildings.filter((b)=> b.id !== id))
+  }
+
+  return (
+    <Shell>
+      <div className="top">
+        <div>
+          <h1>إدارة العقارات</h1>
+          <div className="sub">
+            إضافة عمائر ووحدات مع ألوان مخصصة
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>إضافة عمارة جديدة</h2>
+
+        <div className="field">
+          <label>اسم العمارة</label>
+          <input
+            value={buildingName}
+            onChange={(e)=>setBuildingName(e.target.value)}
+            placeholder="مثال: عمارة السلام"
+          />
+        </div>
+
+        <div className="field">
+          <label>لون العمارة</label>
+          <input
+            type="color"
+            value={buildingColor}
+            onChange={(e)=>setBuildingColor(e.target.value)}
+          />
+        </div>
+
+        <button className="btn" onClick={addBuilding}>
+          حفظ العمارة
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>العقارات الحالية</h2>
+
+        {buildings.length === 0 ? (
+          <p>لا توجد عقارات مضافة</p>
+        ) : (
+          buildings.map((building) => (
+            <div
+              key={building.id}
+              style={{
+                borderRight: `8px solid ${building.color}`,
+                padding: 20,
+                marginBottom: 15,
+                borderRadius: 15,
+                background:'#111'
+              }}
+            >
+              <h3>{building.name}</h3>
+
+              <div
+                style={{
+                  width:40,
+                  height:40,
+                  borderRadius:'50%',
+                  background:building.color
+                }}
+              />
+
+              <button
+                className="btn"
+                onClick={()=>deleteBuilding(building.id)}
+              >
+                حذف العمارة
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </Shell>
+  )
+}
