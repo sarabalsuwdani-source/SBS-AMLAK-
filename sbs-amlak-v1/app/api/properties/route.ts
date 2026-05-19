@@ -1,27 +1,36 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '../../../lib/prisma'
 
 export async function GET() {
-  const properties = await prisma.property.findMany({
-    orderBy: { createdAt: 'desc' }
-  })
+  try {
+    const properties = await prisma.property.findMany()
 
-  return NextResponse.json(properties)
+    return NextResponse.json(properties)
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to fetch properties' },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(req: Request) {
-  const body = await req.json()
+  try {
+    const body = await req.json()
 
-  const property = await prisma.property.create({
-    data: {
-      name: body.name,
-      code: body.code,
-      type: body.type || 'BUILDING',
-      owner: body.owner || '',
-      location: body.location || '',
-      status: 'نشط'
-    }
-  })
+    const property = await prisma.property.create({
+      data: {
+        name: body.name || 'عقار جديد',
+        code: body.code || Date.now().toString(),
+        type: 'BUILDING'
+      }
+    })
 
-  return NextResponse.json(property)
+    return NextResponse.json(property)
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to create property' },
+      { status: 500 }
+    )
+  }
 }
